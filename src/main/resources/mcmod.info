@@ -1,0 +1,16 @@
+[
+{
+  "modid": "CelTweaker",
+  "name": "CelTweaker",
+  "description": "CelTweaker pre-alpha",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Okkapel683"],
+  "credits": "N/A",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
