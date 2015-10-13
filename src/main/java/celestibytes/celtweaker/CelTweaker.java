@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import celestibytes.celtweaker.modules.ChestLoot;
-import celestibytes.celtweaker.modules.VanillaCrafting;
+import celestibytes.celtweaker.modules.*;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -23,17 +22,22 @@ public class CelTweaker {
 	
 	private Map<String, AHandlerModule> handlers = new HashMap<String, AHandlerModule>();
 	
-	private void registerHandler(String id, AHandlerModule h) {
-		if(handlers.containsKey(id)) {
+	private void registerHandler(AHandlerModule h) {
+		if(handlers.containsKey(h.name)) {
 			System.out.println("Handler already exists!");
 		} else {
-			handlers.put(id, h);
+			handlers.put(h.name, h);
 		}
 	}
 	
 	private void registerHandlers() {
-		registerHandler("vanillacrafting", new VanillaCrafting());
-		registerHandler("chestloot", new ChestLoot());
+		registerHandler(new VanillaCrafting());
+		registerHandler(new DelVanillaCrafting());
+		registerHandler(new ChestLoot());
+		registerHandler(new MobLoot());
+		registerHandler(new NewDawnBotania_ManaInfusion());
+		registerHandler(new NewDawnBotania_RunicAltar());
+		registerHandler(new NewDawnBotania_DelRunicAltar());
 	}
 	
 	@EventHandler
@@ -87,6 +91,7 @@ public class CelTweaker {
 					bw.write("#     Integer: 1337\n");
 					bw.write("#     Character: 'C'\n");
 					bw.write("#     Float: 3.14\n\n");
+					bw.write("#     Boolean: true, false\n\n");
 					
 					bw.write("# Installed modules:\n\n");
 					

@@ -18,6 +18,8 @@ public class Util {
 		}
 	}
 	
+	public static class OreStringOrItemStack {}
+	
 	public static String[] escapedSplit(String str, char escChar) {
 		List<String> parts = new LinkedList<String>();
 		

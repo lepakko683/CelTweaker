@@ -46,6 +46,12 @@ public abstract class AHandlerModule {
 						System.out.println("\tnotInt");
 						return null;
 					}
+				} else if(argType == Boolean.class) {
+					if(isBoolean(arg)) {
+						ret[i] = arg.equalsIgnoreCase("true");
+					} else {
+						return null;
+					}
 				} else if(argType == Character.class) {
 					if(isChar(arg)) {
 						ret[i] = arg.charAt(1);
@@ -66,11 +72,22 @@ public abstract class AHandlerModule {
 						System.out.println("\tnotItemStack");
 						return null;
 					}
+				} else if(argType == Util.OreStringOrItemStack.class) {
+					if(isOreString(arg)) {
+//						ret[i] = new Util.OreString(Util.unquote(arg));
+						ret[i] = Util.unquote(arg);
+					} else if((ret[i] = parseItemStack(arg)) != null) {
+						
+					} else {
+						System.out.println("\tnotOreString or ItemStack");
+						return null;
+					}
 				} else if(argType == Util.OreString.class) {
 					if(isOreString(arg)) {
 						String oreName = Util.unquote(arg);
 						System.out.println("oreName: " + oreName);
-						ret[i] = new Util.OreString(oreName);
+//						ret[i] = new Util.OreString(oreName);
+						ret[i] = oreName;
 					} else {
 						System.out.println("\tnotOre");
 						return null;
@@ -177,6 +194,10 @@ public abstract class AHandlerModule {
 		}
 		
 		return false;
+	}
+	
+	public boolean isBoolean(String s) {
+		return s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false");
 	}
 	
 	public boolean isChar(String s) {

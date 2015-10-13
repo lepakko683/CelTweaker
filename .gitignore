@@ -1,6 +1,7 @@
 run/
 bin/
 build/
+src/api/
 *.jar
 *.class
 .classpath

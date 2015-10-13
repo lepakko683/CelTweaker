@@ -27,6 +27,7 @@ minecraft {
 }
 
 dependencies {
+	compile files('depjars/A-New-Dawn-Botania r1.7-509-deobf.jar')
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
