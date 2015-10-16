@@ -3,22 +3,23 @@ package celestibytes.celtweaker.modules;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import celestibytes.celtweaker.AHandlerModule;
-import celestibytes.celtweaker.Util;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.ModuleUtil;
+import celestibytes.celtweaker.api.Tweak;
 
-public class VanillaCrafting extends AHandlerModule {
+public class VanillaCrafting extends AModule {
 
 	public VanillaCrafting() {
 		super("vanillacrafting", null);
 	}
 	
 	@Override
-	public Object[] checkArgs(String[] args) {
+	public Tweak checkArgs(final String[] args, final String cfgName, final int lineNumber) {
 		Object[] ret = new Object[args.length];
 		int recipeHeight = 0;
 		
 		for(int i=0;isString(args[i]); i++) {
-			ret[i] = Util.unquote(args[i]);
+			ret[i] = ModuleUtil.unquote(args[i]);
 			recipeHeight++;
 		}
 		
@@ -26,7 +27,7 @@ public class VanillaCrafting extends AHandlerModule {
 			if(isChar(args[i - 1])) {
 				ret[i - 1] = Character.valueOf(args[i - 1].charAt(1));
 				if(isOreString(args[i])) {
-					ret[i] = Util.unquote(args[i]);
+					ret[i] = ModuleUtil.unquote(args[i]);
 				} else {
 					ItemStack stack = parseItemStack(args[i]);
 					if(stack == null) {
@@ -50,28 +51,30 @@ public class VanillaCrafting extends AHandlerModule {
 		
 		ret[ret.length - 1] = result;
 		
-		return ret;
+		return new Tweak(this.name, cfgName, lineNumber, this.isUndoable(), ret);
 	}
 
 	@Override
-	public void handle(Object[] args) {
-		int shapeHeight = 0;
-		for(int i = 0; args[i] instanceof String; i++) {
-			System.out.println("> " + args[i]);
-			shapeHeight++;
-		}
-		
-		for(int i = shapeHeight + 1; i < args.length; i += 2) {
-			System.out.println("'" + args[i - 1] + "' = " + args[i]);
-		}
+	public boolean apply(Tweak tweak) {
+//		int shapeHeight = 0;
+//		for(int i = 0; tweak.args[i] instanceof String; i++) {
+//			System.out.println("> " + tweak.args[i]);
+//			shapeHeight++;
+//		}
+//		
+//		for(int i = shapeHeight + 1; i < tweak.args.length; i += 2) {
+//			System.out.println("'" + tweak.args[i - 1] + "' = " + tweak.args[i]);
+//		}
 		
 //		System.out.println("result=" + args[args.length - 1]);
 		
-		Object[] recipe = new Object[args.length - 1];
-		System.arraycopy(args, 0, recipe, 0, recipe.length);
+		Object[] recipe = new Object[tweak.args.length - 1];
+		System.arraycopy(tweak.args, 0, recipe, 0, recipe.length);
 		
 		System.out.println("Adding recipe...");
-		GameRegistry.addRecipe(new ShapedOreRecipe((ItemStack) args[args.length - 1], recipe));
+		GameRegistry.addRecipe(new ShapedOreRecipe((ItemStack) tweak.args[tweak.args.length - 1], recipe));
+		
+		return true;
 	}
 
 	@Override

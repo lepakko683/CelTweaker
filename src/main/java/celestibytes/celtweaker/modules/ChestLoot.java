@@ -3,9 +3,10 @@ package celestibytes.celtweaker.modules;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraftforge.common.ChestGenHooks;
-import celestibytes.celtweaker.AHandlerModule;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.Tweak;
 
-public class ChestLoot extends AHandlerModule {
+public class ChestLoot extends AModule {
 
 	public ChestLoot() {// min, max, weight: 1-10
 		super("chestloot", typeList(String.class, ItemStack.class, Integer.class, Integer.class, Integer.class));
@@ -13,9 +14,10 @@ public class ChestLoot extends AHandlerModule {
 
 	@Override
 	/* String:where ItemStack:what Integer:min Integer:max Integer:weight */
-	public void handle(Object[] args) {
+	public boolean apply(Tweak tweak) {
 		System.out.println("addLoot!");
-		ChestGenHooks.addItem((String)args[0], new WeightedRandomChestContent((ItemStack)args[1], (Integer)args[2], (Integer)args[3], (Integer)args[4]));
+		ChestGenHooks.addItem((String) tweak.args[0], new WeightedRandomChestContent((ItemStack) tweak.args[1], (Integer) tweak.args[2], (Integer) tweak.args[3], (Integer) tweak.args[4]));
+		return true;
 	}
 
 	@Override

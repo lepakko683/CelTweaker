@@ -8,21 +8,38 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import celestibytes.celtweaker.modules.*;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.IModuleProvider;
+import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.ModuleUtil;
+import celestibytes.celtweaker.mods.AMT2;
+import celestibytes.celtweaker.mods.Botania;
+import celestibytes.celtweaker.mods.Minecraft;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid=Ref.MODID, name=Ref.MOD_NAME, version=Ref.VERSION)
 public class CelTweaker {
 	
-	private Map<String, AHandlerModule> handlers = new HashMap<String, AHandlerModule>();
+	// IMC key: CelTweaker-register-provider
 	
-	private void registerHandler(AHandlerModule h) {
+	private List<IModuleProvider> providers = new LinkedList<IModuleProvider>();
+	private Map<String, AModule> handlers = new HashMap<String, AModule>();
+	
+	private void registerProvider(IModuleProvider prov) {
+		providers.add(prov);
+		System.out.println("Registered Module Provider: " + prov.getProviderName());
+	}
+	
+	private void registerModule(AModule h) {
 		if(handlers.containsKey(h.name)) {
 			System.out.println("Handler already exists!");
 		} else {
@@ -30,19 +47,57 @@ public class CelTweaker {
 		}
 	}
 	
-	private void registerHandlers() {
-		registerHandler(new VanillaCrafting());
-		registerHandler(new DelVanillaCrafting());
-		registerHandler(new ChestLoot());
-		registerHandler(new MobLoot());
-		registerHandler(new NewDawnBotania_ManaInfusion());
-		registerHandler(new NewDawnBotania_RunicAltar());
-		registerHandler(new NewDawnBotania_DelRunicAltar());
+	private boolean isProviderEnabled(IModuleProvider prov) {
+		return true; // TODO: allow providers/mods to be disabled by the user
+	}
+	
+	@EventHandler
+	public void imcHandler(FMLInterModComms.IMCEvent e) {
+		for(FMLInterModComms.IMCMessage msg : e.getMessages()) {
+			if(msg.key.equalsIgnoreCase("CelTweaker-register-provider")) {
+				if(msg.isStringMessage()) {
+					String str = msg.getStringValue();
+					if(str != null && str.length() > 0) {
+						try {
+							Class<?> clazz = Class.forName(str);
+							Object inst = clazz.newInstance();
+							
+							if(inst instanceof IModuleProvider) {
+								registerProvider((IModuleProvider) inst);
+							}
+						} catch(Exception ex) {
+							ex.printStackTrace();
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	
+	private void registerProviders() {
+		registerProvider(new Minecraft());
+		registerProvider(new Botania());
+		registerProvider(new AMT2());
+	}
+	
+	private void registerModules() {
+		for(IModuleProvider prov : providers) {
+			if(prov.shouldBeLoaded() && isProviderEnabled(prov)) {
+				for(AModule module : prov.getModules()) {
+					registerModule(module);
+				}
+			} else {
+				System.out.println("Module Provider \"" + prov.getProviderName() + "\" was disabled");
+			}
+		}
 	}
 	
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent e) {
-		registerHandlers();
+		registerProviders();
+		registerModules();
+		
 		File configDir = null;
 		
 		try {
@@ -95,9 +150,9 @@ public class CelTweaker {
 					
 					bw.write("# Installed modules:\n\n");
 					
-					Iterator<AHandlerModule> modIter = handlers.values().iterator();
+					Iterator<AModule> modIter = handlers.values().iterator();
 					while(modIter.hasNext()) {
-						AHandlerModule mod = modIter.next();
+						AModule mod = modIter.next();
 						mod.writeSamples(bw);
 					}
 					
@@ -133,7 +188,7 @@ public class CelTweaker {
 					if(!line.startsWith("#") && !isLineEmpty(line)) {
 						//handle(line.split(".[^\\];"));
 						try {
-							handle(Util.escapedSplit(line, ';'));
+							handle(ModuleUtil.escapedSplit(line, ';'), cfg.getName(), ln);
 						} catch(Exception eex) {
 							System.out.println("Error parsing line " + ln + " in file: " + cfg.getName());
 							eex.printStackTrace();
@@ -162,7 +217,7 @@ public class CelTweaker {
 		return true;
 	}
 	
-	private void handle(String[] parts) {
+	private void handle(String[] parts, String cfgName, int lineNumber) {
 //		System.out.println("attHandle:");
 //		Util.printStringArray(parts);
 		if(parts.length > 0) {
@@ -170,14 +225,19 @@ public class CelTweaker {
 				parts[i] = parts[i].replace("\\", "");
 			}
 			
-			AHandlerModule mod = handlers.get(parts[0]);
+			AModule mod = handlers.get(parts[0]);
 			if(mod != null) {
 				String[] lArgs = new String[parts.length - 1];
 				System.arraycopy(parts, 1, lArgs, 0, lArgs.length);
 				
-				Object[] args = mod.checkArgs(lArgs);
-				if(args != null) {
-					mod.handle(args);
+				Tweak tweak = mod.checkArgs(lArgs, cfgName, lineNumber);
+				if(tweak != null) {
+					if(mod.tweakApply(tweak)) {
+						System.out.println("Successfully enabled tweak: " + tweak);
+					} else {
+						System.out.println("Failed to enable tweak: " + tweak);
+					}
+					
 				}
 			} else {
 				System.out.println("Unknown handler module: " + parts[0]);

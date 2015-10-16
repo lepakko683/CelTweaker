@@ -5,17 +5,18 @@ import java.util.Iterator;
 import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.api.recipe.RecipeRuneAltar;
 import net.minecraft.item.ItemStack;
-import celestibytes.celtweaker.AHandlerModule;
-import celestibytes.celtweaker.Util;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.ModuleUtil;
+import celestibytes.celtweaker.api.Tweak;
 
-public class NewDawnBotania_DelRunicAltar extends AHandlerModule {
+public class NewDawnBotania_DelRunicAltar extends AModule {
 
 	public NewDawnBotania_DelRunicAltar() {
-		super("newdawnbotania_delrunicaltar", null);
+		super("newdawnbotania_del_runicaltar", null);
 	}
 	
 	@Override
-	public Object[] checkArgs(String[] args) {
+	public Tweak checkArgs(final String[] args, final String cfgName, final int lineNumber) {
 		Object[] ret = new Object[args.length];
 		
 		ret[0] = parseItemStack(args[0]);
@@ -31,7 +32,7 @@ public class NewDawnBotania_DelRunicAltar extends AHandlerModule {
 		
 		for(int i=2;i<args.length;i++) {
 			if(isOreString(args[0])) {
-				ret[i] = Util.unquote(args[i]);
+				ret[i] = ModuleUtil.unquote(args[i]);
 			} else {
 				ret[i] = parseItemStack(args[i]);
 				if(ret[i] == null) {
@@ -40,22 +41,26 @@ public class NewDawnBotania_DelRunicAltar extends AHandlerModule {
 			}
 		}
 		
-		return ret;
+		return new Tweak(this.name, cfgName, lineNumber, this.isUndoable(), ret);
 	}
 
 	@Override
-	public void handle(Object[] args) { // TODO: add filtering with inputs
-		ItemStack target = (ItemStack) args[0];
+	public boolean apply(Tweak tweak) { // TODO: add filtering with inputs
+		ItemStack target = (ItemStack) tweak.args[0];
 		//boolean exact = (Boolean) args[1];
+		
+		boolean del = false;
 		
 		Iterator<RecipeRuneAltar> iter = BotaniaAPI.runeAltarRecipes.iterator();
 		while(iter.hasNext()) {
 			RecipeRuneAltar rec = iter.next();
 			if(ItemStack.areItemStacksEqual(rec.getOutput(), target)) {
 				iter.remove();
+				del = true;
 			}
 		}
 		
+		return del;
 	}
 	
 	@Override

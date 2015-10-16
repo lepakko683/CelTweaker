@@ -12,9 +12,10 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import celestibytes.celtweaker.AHandlerModule;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.Tweak;
 
-public class MobLoot extends AHandlerModule {
+public class MobLoot extends AModule {
 	
 	public static class RandomLoot {
 		public final ItemStack loot;
@@ -59,10 +60,10 @@ public class MobLoot extends AHandlerModule {
 	}
 
 	@Override
-	public void handle(Object[] args) {
-		String cls = (String) args[0];
-		ItemStack drop = (ItemStack) args[1];
-		float chance = (Float) args[2];
+	public boolean apply(Tweak tweak) {
+		String cls = (String) tweak.args[0];
+		ItemStack drop = (ItemStack) tweak.args[1];
+		float chance = (Float) tweak.args[2];
 		
 		try {
 			Class<?> clazz = Class.forName(cls);
@@ -76,7 +77,10 @@ public class MobLoot extends AHandlerModule {
 		} catch(Exception e) {
 			System.out.println("Couldn't add mobloot for: " + cls);
 			e.printStackTrace();
+			return false;
 		}
+		
+		return true;
 	}
 
 	@Override

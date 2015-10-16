@@ -8,17 +8,21 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import celestibytes.celtweaker.AHandlerModule;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.ModuleUtil;
+import celestibytes.celtweaker.api.Tweak;
 
-public class DelVanillaCrafting extends AHandlerModule{
+public class DelVanillaCrafting extends AModule{
 
 	public DelVanillaCrafting() {
-		super("delvanillacrafting", typeList(ItemStack.class));
+		super("del_vanillacrafting", typeList(ItemStack.class));
 	}
 
 	@Override
-	public void handle(Object[] args) {
-		ItemStack target = (ItemStack) args[0];
+	public boolean apply(Tweak tweak) {
+		ItemStack target = (ItemStack) tweak.args[0];
+		
+		boolean del = false;
 		
 		Iterator<?> recipes = CraftingManager.getInstance().getRecipeList().iterator();
 		while(recipes.hasNext()) {
@@ -43,16 +47,15 @@ public class DelVanillaCrafting extends AHandlerModule{
 				output = re.getRecipeOutput();
 			}
 			
-			if(output != null && matches(output, target)) {
+			if(output != null && ModuleUtil.matches(output, target)) {
 				recipes.remove();
+				del = true;
 			}
 		}
+		
+		return del;
 	}
 	
-	private boolean matches(ItemStack a, ItemStack b) {
-		return a == null || b == null ? false : a.getItem() == b.getItem() ? a.getItemDamage() == b.getItemDamage() : false;
-	}
-
 	@Override
 	public String[] getSamples() {
 		return new String[]{

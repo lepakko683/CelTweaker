@@ -2,17 +2,18 @@ package celestibytes.celtweaker.modules;
 
 import net.minecraft.item.ItemStack;
 import vazkii.botania.api.BotaniaAPI;
-import celestibytes.celtweaker.AHandlerModule;
-import celestibytes.celtweaker.Util;
+import celestibytes.celtweaker.api.AModule;
+import celestibytes.celtweaker.api.ModuleUtil;
+import celestibytes.celtweaker.api.Tweak;
 
-public class NewDawnBotania_RunicAltar extends AHandlerModule {
+public class NewDawnBotania_RunicAltar extends AModule {
 
 	public NewDawnBotania_RunicAltar() {
 		super("newdawnbotania_runicaltar", null);
 	}
 	
 	@Override
-	public Object[] checkArgs(String[] args) {
+	public Tweak checkArgs(final String[] args, final String cfgName, final int lineNumber) {
 		if(args.length <= 2) {
 			return null;
 		}
@@ -31,7 +32,7 @@ public class NewDawnBotania_RunicAltar extends AHandlerModule {
 		
 		for(int i = 2; i < args.length; i++) {
 			if(isOreString(args[i])) {
-				ret[i] = Util.unquote(args[i]);
+				ret[i] = ModuleUtil.unquote(args[i]);
 			} else if((ret[i] = parseItemStack(args[i])) != null) {
 				
 			} else {
@@ -39,14 +40,16 @@ public class NewDawnBotania_RunicAltar extends AHandlerModule {
 			}
 		}
 		
-		return ret;
+		return new Tweak(this.name, cfgName, lineNumber, this.isUndoable(), ret);
 	}
 
 	@Override
-	public void handle(Object[] args) {
-		Object[] inputs = new Object[args.length - 2];
-		System.arraycopy(args, 2, inputs, 0, inputs.length);
-		BotaniaAPI.registerRuneAltarRecipe((ItemStack) args[0], (Integer) args[1], inputs);
+	public boolean apply(Tweak tweak) {
+		Object[] inputs = new Object[tweak.args.length - 2];
+		System.arraycopy(tweak.args, 2, inputs, 0, inputs.length);
+		BotaniaAPI.registerRuneAltarRecipe((ItemStack) tweak.args[0], (Integer) tweak.args[1], inputs);
+		
+		return true;
 	}
 
 	@Override
