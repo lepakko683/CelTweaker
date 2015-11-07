@@ -14,6 +14,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.Version;
 
 public class MobLoot extends AModule {
 	
@@ -55,7 +56,7 @@ public class MobLoot extends AModule {
 	}
 
 	public MobLoot() {
-		super("mobloot", typeList(String.class, ItemStack.class, Float.class));
+		super("mobloot", new Version(0, 1), typeList(String.class, ItemStack.class, Float.class));
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 

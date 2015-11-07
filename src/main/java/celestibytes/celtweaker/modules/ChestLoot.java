@@ -5,11 +5,12 @@ import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraftforge.common.ChestGenHooks;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.Version;
 
 public class ChestLoot extends AModule {
 
 	public ChestLoot() {// min, max, weight: 1-10
-		super("chestloot", typeList(String.class, ItemStack.class, Integer.class, Integer.class, Integer.class));
+		super("chestloot", new Version(0, 1), typeList(String.class, ItemStack.class, Integer.class, Integer.class, Integer.class));
 	}
 
 	@Override

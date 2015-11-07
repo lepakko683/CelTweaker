@@ -11,11 +11,12 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.ModuleUtil;
 import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.Version;
 
 public class DelVanillaCrafting extends AModule{
 
 	public DelVanillaCrafting() {
-		super("del_vanillacrafting", typeList(ItemStack.class));
+		super("del_vanillacrafting", new Version(0, 1), typeList(ItemStack.class));
 	}
 
 	@Override

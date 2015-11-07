@@ -9,11 +9,12 @@ import net.minecraft.item.ItemStack;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.ModuleUtil;
 import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.Version;
 
 public class AMT2_DelTeaRecipe extends AModule {
 
 	public AMT2_DelTeaRecipe() {
-		super("amt2_del_tearecipe", typeList(ItemStack.class));
+		super("amt2_del_tearecipe", new Version(0, 1), typeList(ItemStack.class));
 	}
 
 	@Override

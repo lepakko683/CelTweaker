@@ -5,11 +5,12 @@ import vazkii.botania.api.BotaniaAPI;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.ModuleUtil;
 import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.Version;
 
 public class NewDawnBotania_ManaInfusion extends AModule {
 
 	public NewDawnBotania_ManaInfusion() {
-		super("newdawnbotania_manainfusion", typeList(ItemStack.class, ModuleUtil.OreStringOrItemStack.class, Integer.class));
+		super("newdawnbotania_manainfusion", new Version(0, 1), typeList(ItemStack.class, ModuleUtil.OreStringOrItemStack.class, Integer.class));
 	}
 
 	@Override

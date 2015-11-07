@@ -32,6 +32,7 @@ public class ModuleUtil {
 				splitStart = i + 1;
 			}
 		}
+		
 		if(str.length() - splitStart > 0) {
 			parts.add(str.substring(splitStart, str.length()));
 		}

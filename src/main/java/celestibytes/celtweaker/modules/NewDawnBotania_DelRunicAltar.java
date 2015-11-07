@@ -8,18 +8,21 @@ import net.minecraft.item.ItemStack;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.ModuleUtil;
 import celestibytes.celtweaker.api.Tweak;
+import celestibytes.celtweaker.api.Version;
+import celestibytes.celtweaker.api.types.TBase;
+import celestibytes.celtweaker.api.types.TOre;
 
 public class NewDawnBotania_DelRunicAltar extends AModule {
 
 	public NewDawnBotania_DelRunicAltar() {
-		super("newdawnbotania_del_runicaltar", null);
+		super("newdawnbotania_del_runicaltar", new Version(0, 1), null);
 	}
 	
 	@Override
-	public Tweak checkArgs(final String[] args, final String cfgName, final int lineNumber) {
+	public Tweak checkArgs(final TBase[] args, final String cfgName, final int lineNumber) {
 		Object[] ret = new Object[args.length];
 		
-		ret[0] = parseItemStack(args[0]);
+		ret[0] = args[0].castStack().value;
 		if(ret[0] == null) {
 			return null;
 		}
@@ -30,18 +33,18 @@ public class NewDawnBotania_DelRunicAltar extends AModule {
 //			return null;
 //		}
 		
-		for(int i=2;i<args.length;i++) {
-			if(isOreString(args[0])) {
-				ret[i] = ModuleUtil.unquote(args[i]);
-			} else {
-				ret[i] = parseItemStack(args[i]);
-				if(ret[i] == null) {
-					return null;
-				}
-			}
-		}
+//		for(int i=2;i<args.length;i++) {
+//			if(args[i] instanceof TOre) {
+//				ret[i] = args[i].castOre().asString();
+//			} else {
+//				ret[i] = args[i].castStack().value;
+//				if(ret[i] == null) {
+//					return null;
+//				}
+//			}
+//		}
 		
-		return new Tweak(this.name, cfgName, lineNumber, this.isUndoable(), ret);
+		return new Tweak(this, cfgName, lineNumber, ret);
 	}
 
 	@Override
