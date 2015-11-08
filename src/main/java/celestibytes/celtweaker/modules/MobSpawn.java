@@ -11,7 +11,6 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.Tweak;
 import celestibytes.celtweaker.api.Version;
-import celestibytes.celtweaker.api.types.TClass;
 import celestibytes.celtweaker.api.types.TNumber;
 import celestibytes.celtweaker.api.types.TString;
 
@@ -20,7 +19,7 @@ public class MobSpawn extends AModule {
 	private Map<String, WeakReference<BiomeGenBase>> biomeCache = new HashMap<String, WeakReference<BiomeGenBase>>();
 
 	public MobSpawn() { // entityClass, spawnWeight, minGroupSize, maxGroupSize, creatureType, biomeName
-		super("mobspawn", new Version(0, 1), typeList(TClass.class, TNumber.class, TNumber.class, TNumber.class, TString.class, TString.class));
+		super("mobspawn", new Version(0, 1), typeList(Class.class, Integer.class, Integer.class, Integer.class, String.class, String.class));
 	}
 
 	@SuppressWarnings("unchecked")

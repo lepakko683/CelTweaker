@@ -8,9 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import celestibytes.celtweaker.api.types.TBase;
+import celestibytes.celtweaker.api.types.TBlock;
 import celestibytes.celtweaker.api.types.TBoolean;
 import celestibytes.celtweaker.api.types.TChar;
 import celestibytes.celtweaker.api.types.TClass;
+import celestibytes.celtweaker.api.types.TItem;
 import celestibytes.celtweaker.api.types.TNumber;
 import celestibytes.celtweaker.api.types.TOre;
 import celestibytes.celtweaker.api.types.TStack;
@@ -44,19 +46,27 @@ public abstract class AModule {
 		}
 	}
 	
-	public interface IMArg {
-		// nothing?
-	}
+//	public static class ArgOpt implements IMArg {
+//	public final Class<? extends TBase> opt;
+//	
+//	public ArgOpt(Class<? extends TBase> opt) {
+//		this.opt = opt;
+//	}
+//	
+//	public boolean check(TBase arg) {
+//		return arg.getClass() == opt;
+//	}
+//}
 	
-	public static class ArgOr implements IMArg {
+	public static class ArgOr {
 		
-		public final Class<? extends TBase>[] options;
+		public final Class<?>[] options;
 		
-		public ArgOr(Class<? extends TBase>... options) {
+		public ArgOr(Class<?>... options) {
 			this.options = options;
 		}
 		
-		public boolean check(TBase arg) {
+		public boolean check(Object arg) {
 			for(int i = 0; i < options.length; i++) {
 				if(arg.getClass() == options[i]) {
 					return true;
@@ -67,123 +77,134 @@ public abstract class AModule {
 		}
 	}
 	
-//	public static class ArgOpt implements IMArg {
-//		public final Class<? extends TBase> opt;
-//		
-//		public ArgOpt(Class<? extends TBase> opt) {
-//			this.opt = opt;
-//		}
-//		
-//		public boolean check(TBase arg) {
-//			return arg.getClass() == opt;
-//		}
-//	}
-	
-	public static class ArgRepeat implements IMArg {
-		public final IMArg[] list;
+	public static class ArgRepeat {
+		public final Object[] list;
 		public final int min, max;
 		
-		public ArgRepeat(IMArg... list) {
+		public ArgRepeat(Object[] list) {
 			this.list = list;
 			min = 1;
 			max = Integer.MAX_VALUE;
 		}
 		
-		public ArgRepeat(int min, int max, IMArg... list) {
+		public ArgRepeat(int min, int max, Object[] list) {
 			this.list = list;
 			this.min = min;
 			this.max = max;
 		}
-		
-		/** index = index of first arg to check, return = number of checked elements */
-		public int check(TBase[] args, int index, List<TBase> ret) {
-			int checks = 0;
-			for(int i = index; i < max; i += list.length) {
-				
-				for(int q = 0; q < list.length; q++) {
-					TBase arg = i + q < args.length ? args[i + q] : null;
-					IMArg need = list[q];
-					
-					if(arg == null) {
-						return -1;
-					} else if(need instanceof TBase) {
-						if(need.getClass().isAssignableFrom(arg.getClass())) {
-							ret.add(arg);
-						}
-					} else if(need instanceof ArgOr) {
-						if(((ArgOr)need).check(arg)) {
-							ret.add(arg);
-						} else {
-							return checks >= min ?  : -1;
-						}
-					} else {
-						return -1;
-					}
-				}
-				
-				checks++;
-				if(checks >= min) {
-					return i;
-				}
-			}
-			
-			return -1;
-		}
-		
 	}
 	
 	public final String name;
 	public final Version version;
-	protected final Class<?>[] argTypes;
+	protected final Object[] argTypes;
 	private boolean undoable = false;
 	
-	public AModule(String name, Version version, Class<?>[] types) {
+	public AModule(String name, Version version, Object[] types) {
 		this.name = name;
 		this.version = version;
 		this.argTypes = types;
 	}
 	
-	protected static Class<?>[] typeList(Class<?>... types) {
+	protected static Object[] typeList(Object... types) {
 		return types;
 	}
 	
-	public Tweak checkArgs(final TBase[] args, final String cfgName, final int tweakidx) {
-		if(argTypes.length != args.length) {
-			return null;
-		}
-		
-		List<TBase> argv = new ArrayList<TBase>();
-		
-		for(int i = 0; i < args.length; i++) {
-			TBase n = args[i];
-			Class<?> needType = argTypes[i];
+	private int checkArg(Object need, TBase[] args, int argIdx, List<Object> ret, boolean checkBoth) {
+//		System.out.println("Need: " + need + " args[argIdx]: " + args[argIdx] + " ret.size(): " + ret.size() + " checkBoth: " + checkBoth);
+		TBase arg = args[argIdx];
+		if(need instanceof Class) {
+			Class<?> cls = (Class<?>) need;
+//			System.out.println("cls: " + cls.getName());
 			
-			try {
-				if(needType == TString.class) {
-					argv.add(n.castString());
-				} else if(needType == TBoolean.class) {
-					argv.add(n.castBoolean());
-				} else if(TNumber.class.isAssignableFrom(needType) && needType.isAssignableFrom(n.getClass())) {
-					argv.add(n);
-				} else if(needType == TChar.class) {
-					argv.add(n.castChar());
-				} else if(needType == TStack.class) {
-					argv.add(n.castStack());
-				} else if(needType == TOre.class) {
-					argv.add(n.castOre());
-				} else if(needType == TClass.class) {
-					argv.add(n.castClass());
-				} else {
-					return null;
+			if(cls == TBase.class) {
+				ret.add(arg);
+			} else if(cls.isAssignableFrom(arg.getClass())) {
+				ret.add(arg);
+			} else if(cls == Block.class && (checkBoth ? (arg.getClass().isAssignableFrom(TBlock.class)) : true)) {
+				ret.add(arg.asBlock());
+			} else if(cls == Item.class && (checkBoth ? (arg instanceof TItem) : true)) {
+				ret.add(arg.asItem());
+			} else if(cls == ItemStack.class && (checkBoth ? (arg instanceof TStack) : true)) {
+				ret.add(arg.asItemStack());
+			} else if(cls == String.class && (checkBoth ? (arg instanceof TString) : true)) {
+				ret.add(arg.asString());
+			} else if(cls == Byte.class && (checkBoth ? (arg instanceof TNumber) : true)) {
+				ret.add(arg.asByte());
+			} else if(cls == Short.class && (checkBoth ? (arg instanceof TNumber) : true)) {
+				ret.add(arg.asShort());
+			} else if(cls == Integer.class && (checkBoth ? (arg instanceof TNumber) : true)) {
+				ret.add(arg.asInt());
+			} else if(cls == Long.class && (checkBoth ? (arg instanceof TNumber) : true)) {
+				ret.add(arg.asLong());
+			} else if(cls == Float.class && (checkBoth ? (arg instanceof TNumber) : true)) {
+				ret.add(arg.asFloat());
+			} else if(cls == Double.class && (checkBoth ? (arg instanceof TNumber) : true)) {
+				ret.add(arg.asDouble());
+			} else if(cls == Boolean.class && (checkBoth ? (arg instanceof TBoolean) : true)) {
+				ret.add(arg.asBoolean());
+			} else if(cls == Character.class && (checkBoth ? (arg instanceof TChar) : true)) {
+				ret.add(arg.asChar());
+			} else if(cls == Class.class && (checkBoth ? (arg instanceof TClass) : true)) {
+				ret.add(arg.asClass());
+			} else {
+				return -1;
+			}
+			
+			return 1;
+		} else if(need instanceof ArgOr) {
+			ArgOr argor = (ArgOr) need;
+			
+			for(Class<?> cls : argor.options) {
+				if(checkArg(cls, args, argIdx, ret, true) == 1) {
+					return 1;
+				}
+			}
+			
+			return -1;
+		} else if(need instanceof ArgRepeat) {
+			ArgRepeat argrpt = (ArgRepeat) need;
+			
+			int rpts = 0;
+			for(int i = 0; i < argrpt.max; i++) {
+				for(int j = 0; j < argrpt.list.length; j++) {
+					if(argrpt.list[j] instanceof ArgRepeat) {
+						return -1;
+					}
+					
+					if(checkArg(argrpt.list[j], args, argIdx + i * argrpt.list.length + j, ret, true) <= -1) {
+						if(i >= argrpt.min && j == 0) {
+							return rpts * argrpt.list.length;
+						} else {
+							return -1;
+						}
+					}
 				}
 				
-			} catch(Exception e) {
-				e.printStackTrace();
-				return null;
+//				System.out.println("rpts: " + rpts);
+				rpts++;
 			}
+			
+			return rpts * argrpt.list.length;
 		}
 		
-		return new Tweak(this, cfgName, tweakidx, argv.toArray(new TBase[0]));
+		return -1;
+	}
+	
+	public Tweak checkArgs(final TBase[] args, final String cfgName, final int tweakidx) {
+		List<Object> ret = new LinkedList<Object>();
+		
+		int argIdx = 0;
+		for(int i = 0; i < argTypes.length; i++) {
+			int add = checkArg(argTypes[i], args, argIdx, ret, false);
+			
+			if(add <= -1) {
+				throw new CelTweakerException("Argument check error!");
+			}
+			
+			argIdx += add;
+		}
+		
+		return new Tweak(this, cfgName, tweakidx, ret.toArray(new Object[0]));
 	}
 	
 	private static boolean firstRun = true; 
