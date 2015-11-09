@@ -18,6 +18,7 @@ import celestibytes.celtweaker.api.AModule;
 import celestibytes.celtweaker.api.ILogger;
 import celestibytes.celtweaker.api.IModuleProvider;
 import celestibytes.celtweaker.api.ITweakHandler;
+import celestibytes.celtweaker.api.ScriptReader;
 import celestibytes.celtweaker.api.Tweak;
 import celestibytes.celtweaker.api.ModuleUtil;
 import celestibytes.celtweaker.api.types.TBase;
@@ -127,7 +128,7 @@ public class CelTweaker {
 			}
 			
 			ctRoot = new File(mcroot, "CelTweaker");
-			cfgDir = new File(ctRoot, "configs");
+			cfgDir = new File(ctRoot, "scripts");
 			moduleDir = new File(ctRoot, "modules");
 		} catch(Exception ex) {
 			ex.printStackTrace();
@@ -218,7 +219,7 @@ public class CelTweaker {
 			
 			@Override
 			public boolean accept(File file) {
-				if(file.isFile() && file.getName().toLowerCase().endsWith(".cfg")) {
+				if(file.isFile() && file.getName().toLowerCase().endsWith(".cts")) {
 					return true;
 				}
 				
@@ -228,7 +229,7 @@ public class CelTweaker {
 		
 		for(File cfg : cfgFiles) {
 			try {
-				FileReader fr = new FileReader(cfg);
+				ScriptReader fr = new ScriptReader(cfg);
 				
 				parser.parseTweaks(fr, th, log);
 				
@@ -243,7 +244,7 @@ public class CelTweaker {
 	public class TweakHandler implements ITweakHandler {
 
 		@Override
-		public Tweak handleTweak(List<TBase> args, ILogger log) {
+		public Tweak handleTweak(List<TBase> args, ILogger log, int currentLine, String scriptFile) {
 			TString name = args.get(0).castString();
 			if(name != null) {
 				AModule module = handlers.get(name.asString());
@@ -252,8 +253,8 @@ public class CelTweaker {
 				} else {
 					LinkedList<TBase> largs = new LinkedList<TBase>(args);
 					largs.removeFirst();
-					Tweak tweak = module.checkArgs(largs.toArray(new TBase[0]), "someCfg", -1); // TODO: use proper cfgName and index
-					if(module.apply(tweak)) {
+					Tweak tweak = module.checkArgs(largs.toArray(new TBase[0]), scriptFile, currentLine); // TODO: use proper cfgName and index
+					if(tweak != null && module.apply(tweak)) {
 						System.out.println("Successfully enabled tweak: " + tweak);
 					} else {
 						System.out.println("Failed to enable tweak: " + tweak);

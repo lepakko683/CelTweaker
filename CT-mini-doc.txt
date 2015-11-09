@@ -1,0 +1,49 @@
+mod DL: https://www.dropbox.com/s/2qjwzkddwhp43wo/CelTweaker-0.2.jar?dl=0
+
+Base types:
+	TString: "text with whitespace" OR textWithoutWhitespace
+	TNumber: 1 OR 1.5
+	TBoolean: true, false
+	TChar: 'c'
+
+More complex types:
+	TStack: (Stack TString:itemid TNumber:count TNumber:damage) e.g. (Stack minecraft:dye 3 15)
+	TItem: (Item TString:itemid)
+	TBlock: (Block TBlock:blockid)
+	TClass: (Class TString:fullClassName)
+
+Modules:
+	VanillaCrafting:
+		(vanillacrafting
+			TString:shape TString:shape TString:shape
+			TChar:key TStack:item|TString:ore
+			TChar:key TStack:item|TString:ore
+			TStack:result
+		)
+		e.g.
+		(vanillacrafting
+			CCC CDC CCC
+			'C' (Stack minecraft:coal)
+			'D' (Stack minecraft:diamond)
+			(Stack minecraft:diamond 2)
+		)
+
+	ChestLoot:
+		(chestloot TString:lootType TStack:item TNumber:min TNumber:max TNumber:weight)
+
+	MobLoot:
+		(mobloot TString:fullEntityClassName TStack:item TNumber:dropChance) # dropChance 0.0 - 1.0
+
+	DelVanillaCrafting:
+		(del_vanillacrafting TStack:item) # remove any vanilla crafting recipes for 'item'
+
+	MobSpawn:
+		(mobspawn TClass:entityClass TNumber:spawnWeight TNumber:minGroupSize TNumber:maxGroupSize TString:creatureType TString:biomeName) # creatureType one of monster, creature, ambient, waterCreature
+
+TODO:
+	-modules
+		-vanillashapeless
+		-furnacerecipe
+		-del_furnamerecipe
+		-worldgen
+		-startingitem

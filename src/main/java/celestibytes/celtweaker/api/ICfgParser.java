@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ICfgParser {
 	
-	public List<Tweak> parseTweaks(Reader r, ITweakHandler th, ILogger log) throws IOException;
+	public List<Tweak> parseTweaks(ScriptReader r, ITweakHandler th, ILogger log) throws IOException;
 	
 }

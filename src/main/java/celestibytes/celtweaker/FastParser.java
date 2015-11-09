@@ -12,6 +12,7 @@ import celestibytes.celtweaker.api.AModule.Tuple;
 import celestibytes.celtweaker.api.ICfgParser;
 import celestibytes.celtweaker.api.ILogger;
 import celestibytes.celtweaker.api.ITweakHandler;
+import celestibytes.celtweaker.api.ScriptReader;
 import celestibytes.celtweaker.api.Tweak;
 import celestibytes.celtweaker.api.types.TBase;
 import celestibytes.celtweaker.api.types.TBlock;
@@ -125,7 +126,7 @@ public class FastParser implements ICfgParser {
 	private static final String whitespace = " \t\n\r#";
 
 	@Override
-	public List<Tweak> parseTweaks(Reader r, ITweakHandler th, ILogger log) throws IOException {
+	public List<Tweak> parseTweaks(ScriptReader r, ITweakHandler th, ILogger log) throws IOException {
 		List<Tweak> ret = new LinkedList<Tweak>();
 		
 		int c = -1;
@@ -133,14 +134,15 @@ public class FastParser implements ICfgParser {
 			if(c == '#') {
 				skipComment(r);
 			} else if(c == '(') {
-				ret.add(th.handleTweak(parseRoot(r), log));
+				int lineNumber = r.getCurrentLine();
+				ret.add(th.handleTweak(parseRoot(r), log, lineNumber, r.getFilename()));
 			}
 		}
 		
 		return ret;
 	}
 	
-	private List<TBase> parseRoot(Reader r) throws IOException {
+	private List<TBase> parseRoot(ScriptReader r) throws IOException {
 		List<TBase> ret = new LinkedList<TBase>();
 		
 		boolean ws = true;
@@ -178,7 +180,7 @@ public class FastParser implements ICfgParser {
 		return null;
 	}
 	
-	private TBase parseAction(Reader r) throws IOException {
+	private TBase parseAction(ScriptReader r) throws IOException {
 		List<TBase> ret = new LinkedList<TBase>();
 		
 		boolean ws = true;
@@ -218,7 +220,7 @@ public class FastParser implements ICfgParser {
 	
 	private static final String unquotedEnd = whitespace + ")";
 	
-	private Tuple<TBase, Character> parseUnquoted(Reader r, char cc) throws IOException {
+	private Tuple<TBase, Character> parseUnquoted(ScriptReader r, char cc) throws IOException {
 		StringBuilder sb = new StringBuilder(Character.toString(cc));
 		
 		int c = -1;
@@ -233,7 +235,7 @@ public class FastParser implements ICfgParser {
 		return null;
 	}
 	
-	private TBase parseText(Reader r, char quote) throws IOException {
+	private TBase parseText(ScriptReader r, char quote) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
 		int c = -1;
@@ -254,7 +256,7 @@ public class FastParser implements ICfgParser {
 		return null;
 	}
 	
-	private void skipComment(Reader r) throws IOException {
+	private void skipComment(ScriptReader r) throws IOException {
 		int c = -1;
 		while((c = r.read()) != -1) {
 			if(c == '\n' || c == '\r') {

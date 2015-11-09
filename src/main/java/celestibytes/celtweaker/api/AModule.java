@@ -109,6 +109,10 @@ public abstract class AModule {
 		return types;
 	}
 	
+	protected static TBase tbase(Object o) {
+		return (TBase) o;
+	}
+	
 	private int checkArg(Object need, TBase[] args, int argIdx, List<Object> ret, boolean checkBoth) {
 //		System.out.println("Need: " + need + " args[argIdx]: " + args[argIdx] + " ret.size(): " + ret.size() + " checkBoth: " + checkBoth);
 		TBase arg = args[argIdx];
