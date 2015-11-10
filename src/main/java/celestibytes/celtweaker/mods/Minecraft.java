@@ -10,13 +10,14 @@ import celestibytes.celtweaker.modules.DelVanillaCrafting;
 import celestibytes.celtweaker.modules.MobLoot;
 import celestibytes.celtweaker.modules.MobSpawn;
 import celestibytes.celtweaker.modules.VanillaCrafting;
+import celestibytes.celtweaker.modules.WorldGen;
 
 // Minecraft, best mod!
 public class Minecraft implements IModuleProvider {
 
 	@Override
 	public List<AModule> getModules() {
-		return Arrays.asList(new VanillaCrafting(), new DelVanillaCrafting(), new MobLoot(), new ChestLoot(), new MobSpawn());
+		return Arrays.asList(new VanillaCrafting(), new DelVanillaCrafting(), new MobLoot(), new ChestLoot(), new MobSpawn(), new WorldGen());
 	}
 
 	@Override

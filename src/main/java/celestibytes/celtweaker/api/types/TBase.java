@@ -216,6 +216,14 @@ public class TBase {
 		throw new CelTweakerException("Invalid type: not TClass. " + toString());
 	}
 	
+	public boolean checkClassExact(Class<? extends TBase> cls) {
+		return this.getClass() == cls;
+	}
+	
+	public boolean instanceOf(Class<? extends TBase> cls) {
+		return cls.isAssignableFrom(this.getClass());
+	}
+	
 	@Override
 	public String toString() {
 		return "{raw=\"" + raw + "\"}";
