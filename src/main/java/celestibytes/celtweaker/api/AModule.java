@@ -175,7 +175,7 @@ public abstract class AModule {
 						return -1;
 					}
 					
-					if(checkArg(argrpt.list[j], args, argIdx + i * argrpt.list.length + j, ret, true) <= -1) {
+					if((argIdx + i * argrpt.list.length + j) >= args.length || checkArg(argrpt.list[j], args, argIdx + i * argrpt.list.length + j, ret, true) <= -1) {
 						if(i >= argrpt.min && j == 0) {
 							return rpts * argrpt.list.length;
 						} else {

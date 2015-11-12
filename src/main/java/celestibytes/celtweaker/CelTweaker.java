@@ -253,7 +253,7 @@ public class CelTweaker {
 				} else {
 					LinkedList<TBase> largs = new LinkedList<TBase>(args);
 					largs.removeFirst();
-					Tweak tweak = module.checkArgs(largs.toArray(new TBase[0]), scriptFile, currentLine); // TODO: use proper cfgName and index
+					Tweak tweak = module.checkArgs(largs.toArray(new TBase[0]), scriptFile, currentLine);
 					if(tweak != null && module.apply(tweak)) {
 						System.out.println("Successfully enabled tweak: " + tweak);
 					} else {
